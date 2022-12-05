@@ -1,10 +1,14 @@
-const { projects, clients } = require("../sampleData.js");
+//Mongoose models
+const Client = require("../models/Client");
+const Project = require("../models/Project");
+
 const {
   GraphQLObjectType,
   GraphQLID,
   GraphQLString,
   GraphQLSchema,
   GraphQLList,
+  GraphQLNonNull,
 } = require("graphql");
 
 const clientType = new GraphQLObjectType({
@@ -39,7 +43,7 @@ const RootQuery = new GraphQLObjectType({
     clients: {
       type: new GraphQLList(clientType),
       resolve(parent, args) {
-        return clients;
+        return Client.find();
       },
     },
     client: {
@@ -48,13 +52,13 @@ const RootQuery = new GraphQLObjectType({
         id: { type: GraphQLID },
       },
       resolve(parent, args) {
-        return clients.find((client) => client.id === args.id);
+        return Client.findById(parent.clientId);
       },
     },
     projects: {
       type: new GraphQLList(projectType),
       resolve(parent, args) {
-        return projects;
+        return Project.find();
       },
     },
     project: {
@@ -63,7 +67,29 @@ const RootQuery = new GraphQLObjectType({
         id: { type: GraphQLID },
       },
       resolve(parent, args) {
-        return projects.find((project) => project.id === args.id);
+        return Project.findById(args.id);
+      },
+    },
+  },
+});
+
+const myMutation = new GraphQLObjectType({
+  name: "Mutation",
+  fields: {
+    addClient: {
+      type: clientType,
+      args: {
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        phone: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parent, args) {
+        const client = new Client({
+          name: args.name,
+          email: args.email,
+          phone: args.phone,
+        });
+        return client.save();
       },
     },
   },
@@ -71,4 +97,5 @@ const RootQuery = new GraphQLObjectType({
 
 module.exports = new GraphQLSchema({
   query: RootQuery,
+  mutation: myMutation,
 });
