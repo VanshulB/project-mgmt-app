@@ -2,7 +2,7 @@
   "name": "project-mgmt-app",
   "version": "1.0.0",
   "description": "Full Stack MERN with GraphQL",
-  "main": "index.js",
+  "main": "server.js",
   "author": "Vanshul Bhatia",
   "license": "MIT",
   "scripts": {
